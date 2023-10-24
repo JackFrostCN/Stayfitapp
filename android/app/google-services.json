@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "185654362691",
+    "project_id": "stayfit-efe50",
+    "storage_bucket": "stayfit-efe50.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185654362691:android:2c18dea7289b9e44398af6",
+        "android_client_info": {
+          "package_name": "com.stayfit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185654362691-nrbo8caqmmjb11l85l56ddgddv6c361d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfCNb1qBIV2W9NcT9B2T1Bl9KfYMnaxNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185654362691-enq62bjvpqkuortor4k3152ue76e0qeh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
