@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,27 +11,27 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Blue to Red Progress Bar'),
+          title: Text('Modern Circular Progress Bar'),
         ),
         body: Center(
-          child: AnimatedProgressBar(targetProgress: 0.7, currentValue: 5),
+          child: AnimatedCircularProgressBar(targetProgress: 0.7, currentValue: 0.5),
         ),
       ),
     );
   }
 }
 
-class AnimatedProgressBar extends StatefulWidget {
+class AnimatedCircularProgressBar extends StatefulWidget {
   final double targetProgress;
   final double? currentValue;
 
-  AnimatedProgressBar({required this.targetProgress, required this.currentValue});
+  AnimatedCircularProgressBar({required this.targetProgress, required this.currentValue});
 
   @override
-  _AnimatedProgressBarState createState() => _AnimatedProgressBarState();
+  _AnimatedCircularProgressBarState createState() => _AnimatedCircularProgressBarState();
 }
 
-class _AnimatedProgressBarState extends State<AnimatedProgressBar> with TickerProviderStateMixin {
+class _AnimatedCircularProgressBarState extends State<AnimatedCircularProgressBar> with TickerProviderStateMixin {
   late AnimationController _controller;
   double _currentProgress = 0.0;
 
@@ -42,16 +41,16 @@ class _AnimatedProgressBarState extends State<AnimatedProgressBar> with TickerPr
 
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500), // Animation duration of 1.5 seconds
-    );
-
-    _controller.addListener(() {
+      duration: Duration(seconds: 3), // 3-second animation duration
+    )..addListener(() {
       setState(() {
         _currentProgress = lerpDouble(_currentProgress, widget.targetProgress, _controller.value)!;
       });
     });
 
-    _controller.forward();
+    _controller
+      ..forward()
+      ..repeat(reverse: true);
   }
 
   @override
@@ -60,27 +59,28 @@ class _AnimatedProgressBarState extends State<AnimatedProgressBar> with TickerPr
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 300,
-          height: 16,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: LinearProgressIndicator(
-              value: _currentProgress,
-              valueColor: AlwaysStoppedAnimation<Color>(getColorForProgress(_currentProgress)),
-              backgroundColor: Colors.grey[300],
-            ),
+          width: 120,
+          height: 120,
+          child: CircularProgressIndicator(
+            value: _currentProgress,
+            backgroundColor: Colors.grey[300],
+            valueColor: AlwaysStoppedAnimation<Color>(getColorForProgress(_currentProgress)),
+            strokeWidth: 20.0, // Increased thickness of the circular progress bar
           ),
         ),
         SizedBox(height: 16),
-
       ],
     );
   }
 
   Color getColorForProgress(double progress) {
-    final int red = (255 * progress).toInt();
-    final int blue = (255 * (1 - progress)).toInt();
-    return Color.fromRGBO(red, 0, blue, 1.0);
+    if (progress <= 0.33) {
+      return Colors.blue; // Blue for lower BMI range
+    } else if (progress <= 0.66) {
+      return Colors.yellow; // Yellow for middle BMI range
+    } else {
+      return Colors.red; // Red for higher BMI range
+    }
   }
 
   @override

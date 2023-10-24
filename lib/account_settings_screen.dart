@@ -125,23 +125,42 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         final uid = widget.user.uid;
 
         databaseRef.child('users').child(uid).update({'profile_picture': downloadUrl});
-      } catch (e) {
+      } catch (error) {
+        final errorMessage = 'Error: $error';
+        ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            duration: Duration(seconds: 30),
+          ),
+        );
         // Handle any errors that occur during the upload process
-        print('Error uploading profile picture: $e');
+
       }
     }
   }
  //getter
   String _userProfilePictureUrl() {
-    final profilePicture = widget.user?.photoURL;
+    try {
+      final profilePicture = widget.user?.photoURL;
 
-    if (profilePicture != null && profilePicture.isNotEmpty) {
-      return profilePicture;
-    } else {
-      // Return a default image asset or placeholder URL if the user has no profile picture
+      if (profilePicture != null && profilePicture.isNotEmpty) {
+        return profilePicture;
+      } else {
+        // Return a default image asset or placeholder URL if the user has no profile picture
+        return 'assets/profile_picture.png'; // Update with your default image
+      }
+    } catch (e) {
+      final errorMessage = 'Error fetching profile picture: $e';
+      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          duration: Duration(seconds: 30),
+        ),
+      );
       return 'assets/profile_picture.png'; // Update with your default image
     }
   }
+
 
 
   @override
@@ -168,7 +187,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                   Stack(
                     children: [
                       CircleAvatar(
-                        backgroundImage: NetworkImage(_userProfilePictureUrl()), // Update this line
+                        backgroundImage: NetworkImage(_userProfilePictureUrl()),
                         radius: 75, // Adjust the radius as needed
                       ),
                       Positioned(

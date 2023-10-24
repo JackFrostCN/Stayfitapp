@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:stayfitdemo/login.dart';
+import 'MealsScreen.dart';
 import 'account_settings_screen.dart'; // Import the AccountSettingsScreen class
 import 'BMIScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -72,6 +73,14 @@ class HomeScreen2 extends StatelessWidget {
               },
             ),
             ListTile(
+              leading: Icon(Icons.food_bank),
+              title: Text('Meals'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MealsScreen(user: user)));
+              },
+            ),
+            ListTile(
               leading: Icon(Icons.settings),
               title: Text('Settings'),
               onTap: () {
@@ -135,7 +144,7 @@ class HomeScreen2 extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => BMIScreen()));
+                          MaterialPageRoute(builder: (context) => BMIScreen(user: user,)));
                     },
                     style: customElevatedButtonStyle(),
                     child: Text('BMI'),
