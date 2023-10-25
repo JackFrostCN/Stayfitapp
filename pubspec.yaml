@@ -67,6 +67,9 @@ flutter:
   assets :
     - assets/profile_picture.png
     - assets/hh.png
+    - assets/gm.png
+    - assets/ga.png
+    - assets/ge.png
 
 
 

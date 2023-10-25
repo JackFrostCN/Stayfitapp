@@ -6,6 +6,7 @@ import 'CustomizedProgramScreen.dart';
 import 'RecommendedProgramScreen.dart';
 import 'd.dart';
 
+
 class BMIScreen extends StatefulWidget {
   final User user;
 
@@ -13,6 +14,7 @@ class BMIScreen extends StatefulWidget {
 
   @override
   _BMIScreenState createState() => _BMIScreenState(user: user);
+
 }
 
 class _BMIScreenState extends State<BMIScreen> {
@@ -28,6 +30,7 @@ class _BMIScreenState extends State<BMIScreen> {
 
   @override
   void initState() {
+
     super.initState();
     final userId = widget.user.uid;
     // Retrieve height and weight from Firebase
@@ -51,14 +54,37 @@ class _BMIScreenState extends State<BMIScreen> {
   }
 
   @override
+
   Widget build(BuildContext context) {
+
+
     _calculateBMI();
     double F = (_bmiResult! - 15) / (32 - 15);
 
     return Scaffold(
+
       appBar: AppBar(
-        title: Text('BMI Calculator'),
+        automaticallyImplyLeading: true, // back button
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // You can use any icon you want
+          color: Colors.blueAccent, // Change the color to your desired color
+          onPressed: () {
+            // Handle the back button press
+            Navigator.of(context).pop();
+          },
+        ),
+        // ...
+        title: Text('Your BMI Details',
+        style: TextStyle(
+        fontSize: 25,
+        color: Colors.black, // Set the text color to black
+        fontWeight: FontWeight.bold, // Make the text bold
       ),
+      ),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+      ),
+
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -181,17 +207,25 @@ class _BMIScreenState extends State<BMIScreen> {
   }
 }
 ButtonStyle customElevatedButtonStyle({
-  Color primaryColor = Colors.blue,
-  Color textColor = Colors.white,
+  Color primaryColor = Colors.white,
+  Color textColor = Colors.black,
   double paddingSize = 15.0,
   double borderRadiusSize = 10.0,
 }) {
-  return ElevatedButton.styleFrom(
-    foregroundColor: textColor,
-    backgroundColor: primaryColor,
-    padding: EdgeInsets.all(paddingSize),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(borderRadiusSize),
+  return ButtonStyle(
+    foregroundColor: MaterialStateProperty.all<Color>(textColor),
+    backgroundColor: MaterialStateProperty.all<Color>(primaryColor),
+    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+      EdgeInsets.all(paddingSize),
+    ),
+    shape: MaterialStateProperty.all<OutlinedBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadiusSize),
+      ),
+    ),
+    overlayColor: MaterialStateProperty.all<Color>(textColor), // Changes the color of the button when pressed
+    side: MaterialStateProperty.all<BorderSide>(
+      BorderSide(color: textColor, width: 2.0), // Defines the stroke (border)
     ),
   );
 }
