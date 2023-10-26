@@ -49,9 +49,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80.0,
         title: Text('Log In',
         style: TextStyle(
-          fontSize: 25,
+          fontSize: 30,
           color: Colors.black,
           fontWeight: FontWeight.bold,
         ),),
@@ -59,16 +60,22 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.white,
         elevation: 0.0,
       ),
+
       body: Container(
         padding: EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image.asset(
+              'assets/login.png', // Replace with your image asset
+              height: 100.0, // Adjust the height as needed
+            ),
+            SizedBox(height: 20),
             _buildCurvedInputField(
               hintText: 'Email',
               prefixIcon: Icons.email,
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 10.0),
             _buildCurvedInputField(
               hintText: 'Password',
               prefixIcon: Icons.lock,
@@ -85,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
         });
       },
     ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: () {
                 _signInWithEmail(
@@ -97,12 +104,12 @@ class _LoginPageState extends State<LoginPage> {
               child: Text('Log In'),
               style: customElevatedButtonStyle(),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 5.0),
             Text(
               'or',
               style: TextStyle(fontSize: 16.0),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 5.0),
             ElevatedButton.icon(
               onPressed: () {
                 // Handle Google login logic here
@@ -111,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
               label: Text('Log In with Google'),
               style: customElevatedButtonStyle(),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 10.0),
             TextButton(
               onPressed: () {
                 // Navigate to the Sign-Up page

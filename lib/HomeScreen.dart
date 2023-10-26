@@ -27,7 +27,7 @@ class _HomeScreen2State extends State<HomeScreen2> {
     super.initState();
     _tabs = [
       NutritionApp(),
-      AccountSettingsScreen(user: widget.user),
+      MealsScreen(user: widget.user),
       BMIScreen(user: widget.user),
     ];
   }
@@ -71,6 +71,8 @@ class _HomeScreen2State extends State<HomeScreen2> {
       home: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
+
+          toolbarHeight: 80.0,
           title: Text(
             getGreeting(),
             style: TextStyle(
@@ -80,7 +82,7 @@ class _HomeScreen2State extends State<HomeScreen2> {
             ),
           ),
           leading: IconButton(
-            icon: Icon(Icons.person_3_rounded),
+            icon: Icon(Icons.person,size: 36,),
             color: Colors.black,
             onPressed: () => _openSideMenu(context),
           ),
@@ -147,14 +149,17 @@ class _HomeScreen2State extends State<HomeScreen2> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
+          iconSize: 30,
+          selectedFontSize: 10,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.food_bank),
-              label: 'Meals',
+              icon: Icon(Icons.home),
+              label: 'Home',
+
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
+              icon: Icon(Icons.food_bank),
+              label: 'Diary',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.accessibility_new),
