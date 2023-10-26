@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stayfitdemo/HomeScreen.dart';
 import 'NewUser.dart';
 import 'signup.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 
 
@@ -13,13 +14,16 @@ import 'signup.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(MyApp(
+
+  ));
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Login Page with Firebase',
       theme: ThemeData(
         primarySwatch: Colors.blue,

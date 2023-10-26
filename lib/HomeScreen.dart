@@ -163,6 +163,17 @@ class HomeScreen2 extends StatelessWidget {
                       },
                       style: customElevatedButtonStyle(),
                       child: Text('BMI'),
+
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MealsScreen(user: user,)));
+                      },
+                      style: customElevatedButtonStyle(),
+                      child: Text('Meals'),
+
                     ),
                   ],
                 ),
@@ -178,7 +189,7 @@ class HomeScreen2 extends StatelessWidget {
 ButtonStyle customElevatedButtonStyle({
   Color primaryColor = Colors.white,
   Color textColor = Colors.black,
-  double paddingSize = 15.0,
+  double paddingSize = 25.0,
   double borderRadiusSize = 10.0,
 }) {
   return ButtonStyle(
