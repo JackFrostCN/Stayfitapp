@@ -1,26 +1,46 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:stayfitdemo/login.dart';
+import 'package:stayfitdemo/home.dart';
 import 'MealsScreen.dart';
 import 'account_settings_screen.dart'; // Import the AccountSettingsScreen class
 import 'BMIScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-class HomeScreen2 extends StatelessWidget {
+class HomeScreen2 extends StatefulWidget {
   final User user;
 
   HomeScreen2({required this.user});
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  @override
+  _HomeScreen2State createState() => _HomeScreen2State();
+}
+
+class _HomeScreen2State extends State<HomeScreen2> {
+  int _currentIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Define _scaffoldKey here
+
+  late List<Widget> _tabs;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs = [
+      NutritionApp(),
+      AccountSettingsScreen(user: widget.user),
+      BMIScreen(user: widget.user),
+    ];
+  }
+
 
   String getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return 'Good morning';
+      return 'Good Morning';
     } else if (hour < 17) {
-      return 'Good afternoon';
+      return 'Good Afternoon';
     } else {
-      return 'Good evening';
+      return 'Good Evening';
     }
   }
 
@@ -83,9 +103,10 @@ class HomeScreen2 extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.zero,
               children: <Widget>[
+
                 UserAccountsDrawerHeader(
-                  accountName: Text(user.uid),
-                  accountEmail: Text(user.email!),
+                  accountName: Text(widget.user.uid),
+                  accountEmail: Text(widget.user.email!),
                   currentAccountPicture: CircleAvatar(
                     backgroundImage: AssetImage('assets/profile_picture.png'),
                   ),
@@ -102,7 +123,7 @@ class HomeScreen2 extends StatelessWidget {
                   title: Text('Meals'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MealsScreen(user: user)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => MealsScreen(user: widget.user)));
                   },
                 ),
                 ListTile(
@@ -124,63 +145,34 @@ class HomeScreen2 extends StatelessWidget {
             ),
           ),
         ),
-        body: Container(
-          color: Colors.white,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Image.asset(
-                  'assets/hh.png',
-                  width: 1000, // Adjust the width as needed
-                  height: 500, // Adjust the height as needed
-                ),
-                SizedBox(height: 20), // Add spacing below the image
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => AccountSettingsScreen(user: user,)));
-                      },
-                      style: customElevatedButtonStyle(),
-                      child: Text('Account'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle the "Tips" button click
-                      },
-                      style: customElevatedButtonStyle(),
-                      child: Text('Tips'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => BMIScreen(user: user,)));
-                      },
-                      style: customElevatedButtonStyle(),
-                      child: Text('BMI'),
-
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => MealsScreen(user: user,)));
-                      },
-                      style: customElevatedButtonStyle(),
-                      child: Text('Meals'),
-
-                    ),
-                  ],
-                ),
-              ],
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          items: <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.food_bank),
+              label: 'Meals',
             ),
-          ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.accessibility_new),
+              label: 'BMI',
+            ),
+          ],
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
         ),
+
+        body: _tabs[_currentIndex],
+
+
+
+
       ),
     );
   }

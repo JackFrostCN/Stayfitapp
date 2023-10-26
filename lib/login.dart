@@ -36,17 +36,28 @@ class MyApp extends StatelessWidget {
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
+
 }
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool rememberMe = false;
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Log In'),
+        title: Text('Log In',
+        style: TextStyle(
+          fontSize: 25,
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0.0,
       ),
       body: Container(
         padding: EdgeInsets.all(20.0),
@@ -63,15 +74,28 @@ class _LoginPageState extends State<LoginPage> {
               prefixIcon: Icons.lock,
               isPassword: true,
             ),
+           // This should be a part of your State
+
+      CheckboxListTile(
+      title: Text('Remember Me'),
+      value: rememberMe,
+      onChanged: (newValue) {
+        setState(() {
+          rememberMe = newValue!;
+        });
+      },
+    ),
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
                 _signInWithEmail(
                   emailController.text,
                   passwordController.text,
+                  rememberMe,
                 );
               },
               child: Text('Log In'),
+              style: customElevatedButtonStyle(),
             ),
             SizedBox(height: 16.0),
             Text(
@@ -85,6 +109,7 @@ class _LoginPageState extends State<LoginPage> {
               },
               icon: Icon(Icons.g_translate_outlined),
               label: Text('Log In with Google'),
+              style: customElevatedButtonStyle(),
             ),
             SizedBox(height: 16.0),
             TextButton(
@@ -133,10 +158,9 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _signInWithEmail(String email, String password) async {
+  void _signInWithEmail(String email, String password, bool rememberMe) async {
     try {
-      final UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -153,14 +177,20 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context) => NewUser(user: user),
             ),
           );
-        }
-        else {
+        } else {
           // Navigate to the HomeScreen for returning users
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => HomeScreen2(user: user), // Pass user to HomeScreen
             ),
           );
+        }
+
+        if (rememberMe) {
+          // Store user preference if "Remember Me" is checked
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('rememberMe', true);
+          // Store other user information if needed
         }
       }
     } catch (error) {
@@ -233,4 +263,27 @@ class _LoginPageState extends State<LoginPage> {
       return false; // Return false if there's an error
     }
   }*/
+}
+ButtonStyle customElevatedButtonStyle({
+  Color primaryColor = Colors.white,
+  Color textColor = Colors.black87,
+  double paddingSize = 10.0,
+  double borderRadiusSize = 15.0,
+}) {
+  return ButtonStyle(
+    foregroundColor: MaterialStateProperty.all<Color>(textColor),
+    backgroundColor: MaterialStateProperty.all<Color>(primaryColor),
+    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+      EdgeInsets.all(paddingSize),
+    ),
+    shape: MaterialStateProperty.all<OutlinedBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadiusSize),
+      ),
+    ),
+    overlayColor: MaterialStateProperty.all<Color>(textColor),
+    side: MaterialStateProperty.all<BorderSide>(
+      BorderSide(color: textColor, width: 2.0),
+    ),
+  );
 }
