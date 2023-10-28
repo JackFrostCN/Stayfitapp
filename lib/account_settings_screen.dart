@@ -7,11 +7,15 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:path/path.dart' as Path;
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'HomeScreen.dart';
 
 
 class AccountSettingsScreen extends StatefulWidget {
 
   final User user;
+
 
   AccountSettingsScreen({required this.user});
   @override
@@ -21,20 +25,21 @@ class AccountSettingsScreen extends StatefulWidget {
 class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   final User user;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  String imgurl = '';
 
   _AccountSettingsScreenState({required this.user});
+
   String _name = '';
-  String _email = 'stayfit@demo.com';
-  String _password = 'password123'; // Initial password
-  String _birthday = '01/01/1990';
-  double _height = 175.0; // Initial height in centimeters
-  double _weight = 70.0; // Initial weight in kilograms
-  String _username = 'pkyy';
-  bool _isPasswordVisible = false;
+  String _email = '';
+  String _birthday = '';
+  double _height = 0; // Initial height in centimeters
+  double _weight = 0; // Initial weight in kilograms
+  String _username = '';
+
 
   TextEditingController _nameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
   TextEditingController _birthdayController = TextEditingController();
   TextEditingController _heightController = TextEditingController();
   TextEditingController _weightController = TextEditingController();
@@ -49,12 +54,22 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
 
 // Retrieve fname from Firebase
-    databaseRef.child('users').child(id).child('fname').onValue.listen((fnameEvent) {
+    databaseRef
+        .child('users')
+        .child(id)
+        .child('fname')
+        .onValue
+        .listen((fnameEvent) {
       if (fnameEvent.snapshot.value != null) {
         final fname = fnameEvent.snapshot.value.toString();
 
         // Retrieve lname from Firebase
-        databaseRef.child('users').child(id).child('lname').onValue.listen((lnameEvent) {
+        databaseRef
+            .child('users')
+            .child(id)
+            .child('lname')
+            .onValue
+            .listen((lnameEvent) {
           if (lnameEvent.snapshot.value != null) {
             final lname = lnameEvent.snapshot.value.toString();
             _name = '$fname $lname'; // Update fullName
@@ -65,19 +80,15 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         });
       }
     });
-    // Retrieve username from Firebase
-    databaseRef.child('users').child(id).child('username2').onValue.listen((usernameEvent) {
-      if (usernameEvent.snapshot.value != null) {
-        final username = usernameEvent.snapshot.value.toString();
-        setState(() {
-          _username = username;
-        });
 
-      }
-    });
 
     // Retrieve height and weight from Firebase
-    databaseRef.child('users').child(id).child('height').onValue.listen((heightEvent) {
+    databaseRef
+        .child('users')
+        .child(id)
+        .child('height')
+        .onValue
+        .listen((heightEvent) {
       if (heightEvent.snapshot.value != null) {
         final height = heightEvent.snapshot.value.toString();
         // Set _heightController.text
@@ -88,7 +99,12 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
     });
 
 
-    databaseRef.child('users').child(id).child('weight').onValue.listen((weightEvent) {
+    databaseRef
+        .child('users')
+        .child(id)
+        .child('weight')
+        .onValue
+        .listen((weightEvent) {
       if (weightEvent.snapshot.value != null) {
         final weight = weightEvent.snapshot.value.toString();
         // Set _weightController.text
@@ -97,15 +113,58 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         });
       }
     });
+    // Retrieve username2 from Firebase
+    databaseRef
+        .child('users')
+        .child(widget.user.uid)
+        .child('username2')
+        .onValue
+        .listen((usernameEvent) {
+      if (usernameEvent.snapshot.value != null) {
+        _username = usernameEvent.snapshot.value.toString();
+        setState(() {
+          _usernameController.text = usernameEvent.snapshot.value.toString();
+        });
+      }
+    });
+    // Retrieve birthday from Firebase
+    databaseRef
+        .child('users')
+        .child(widget.user.uid)
+        .child('birthday')
+        .onValue
+        .listen((birthdayEvent) {
+      if (birthdayEvent.snapshot.value != null) {
+        _birthday = birthdayEvent.snapshot.value.toString();
+        setState(() {
+          _birthdayController.text = birthdayEvent.snapshot.value.toString();
+        });
+      }
+    });
+    // Retrieve imgurl from Firebase
+    databaseRef
+        .child('users')
+        .child(widget.user.uid)
+        .child('profile_picture')
+        .onValue
+        .listen((propicEvent) {
+      if (propicEvent.snapshot.value != null) {
+        setState(() {
+          imgurl = propicEvent.snapshot.value.toString();
+        });
+      }
+    });
 
 
     // Initialize text controllers with current values
     _nameController.text = _name;
     _emailController.text = user.email!;
-    _passwordController.text = _password;
+    _usernameController.text = _username;
     _birthdayController.text = _birthday;
-    _heightController.text = _height.toStringAsFixed(2); // Format height to two decimal places
-    _weightController.text = _weight.toStringAsFixed(2); // Format weight to two decimal places
+    _heightController.text =
+        _height.toStringAsFixed(2); // Format height to two decimal places
+    _weightController.text =
+        _weight.toStringAsFixed(2); // Format weight to two decimal places
   }
 
   // Function to handle the profile picture selection from the gallery
@@ -117,14 +176,16 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       final fileName = pickedFile.path; // Get the path directly from pickedFile
 
       try {
-        final task = await _storage.ref('profile pictures/$fileName').putFile(File(fileName));
+        final task = await _storage.ref('profile pictures/$fileName').putFile(
+            File(fileName));
         final downloadUrl = await task.ref.getDownloadURL();
 
         // Update the user's profile picture URL in the Realtime Database
         final databaseRef = FirebaseDatabase.instance.reference();
         final uid = widget.user.uid;
 
-        databaseRef.child('users').child(uid).update({'profile_picture': downloadUrl});
+        databaseRef.child('users').child(uid).update(
+            {'profile_picture': downloadUrl});
       } catch (error) {
         final errorMessage = 'Error: $error';
         ScaffoldMessenger.of(context as BuildContext).showSnackBar(
@@ -138,42 +199,39 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       }
     }
   }
- //getter
-  String _userProfilePictureUrl() {
-    try {
-      final profilePicture = widget.user?.photoURL;
-
-      if (profilePicture != null && profilePicture.isNotEmpty) {
-        return profilePicture;
-      } else {
-        // Return a default image asset or placeholder URL if the user has no profile picture
-        return 'assets/profile_picture.png'; // Update with your default image
-      }
-    } catch (e) {
-      final errorMessage = 'Error fetching profile picture: $e';
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          duration: Duration(seconds: 30),
-        ),
-      );
-      return 'assets/profile_picture.png'; // Update with your default image
-    }
-  }
-
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Account Settings'),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back), // You can use any icon you want
+            color: Colors.blueAccent, // Change the color to your desired color
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen2(user: user)),
+              );
+            }),
+        // ...
+        title: Text('Account Setting',
+          style: TextStyle(
+            fontSize: 25,
+            color: Colors.black, // Set the text color to black
+            fontWeight: FontWeight.bold, // Make the text bold
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.save : Icons.edit),
             onPressed: _onSave,
+            color: Colors.black,
           ),
         ],
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        toolbarHeight: 80.0,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -187,25 +245,40 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                   Stack(
                     children: [
                       CircleAvatar(
-                        backgroundImage: NetworkImage(_userProfilePictureUrl()),
-                        radius: 75, // Adjust the radius as needed
+                        backgroundImage: NetworkImage(imgurl),
+                        radius: 80,
+                        child: imgurl == null || imgurl.isEmpty
+                            ? Image.asset('assets/profile_picture.png')
+                            : null,
                       ),
                       Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.camera_alt, // Change to your desired icon
-                            color: Colors.blue, // Change to your desired icon color
+                        bottom: 5, // Adjust the bottom position as needed
+                        right: 5, // Adjust the right position as needed
+                        child: Container(
+                          width: 40,
+                          // Adjust the width of the circular background
+                          height: 40,
+                          // Adjust the height of the circular background
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors
+                                .blue, // Change to your desired background color
                           ),
-                          onPressed: selectProfilePicture,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors
+                                  .white, // Change to your desired icon color
+                            ),
+                            onPressed: selectProfilePicture,
+                          ),
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 5),
                   Text(
-                      '@'+'$_username',
+                    '@' + '$_username',
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -215,6 +288,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
             _buildTextFormField(
               label: 'Name',
               controller: _nameController,
+
             ),
             SizedBox(height: 16),
             _buildTextFormField(
@@ -222,7 +296,10 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
               controller: _emailController,
             ),
             SizedBox(height: 16),
-            _buildPasswordFormField(),
+            _buildTextFormField(
+              label: 'Username',
+              controller: _usernameController,
+            ),
             SizedBox(height: 16),
             _buildTextFormField(
               label: 'Birthday',
@@ -260,37 +337,15 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0), // Adjust the border radius as needed
+          borderRadius: BorderRadius.circular(
+              12.0), // Adjust the border radius as needed
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0), // Adjust padding as needed
+        contentPadding: EdgeInsets.symmetric(
+            horizontal: 16.0, vertical: 12.0), // Adjust padding as needed
       ),
     );
   }
 
-  TextFormField _buildPasswordFormField() {
-    return TextFormField(
-      controller: _passwordController,
-      enabled: _isEditing,
-      obscureText: !_isPasswordVisible,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0), // Adjust the border radius as needed
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0), // Adjust padding as needed
-        suffixIcon: IconButton(
-          icon: Icon(
-            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-          ),
-          onPressed: () {
-            setState(() {
-              _isPasswordVisible = !_isPasswordVisible;
-            });
-          },
-        ),
-      ),
-    );
-  }
 
   InkWell _buildForgotPasswordButton() {
     return InkWell(
@@ -307,21 +362,31 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
     );
   }
 
-  void _onSave() {
+
+  Future<void> _onSave() async {
     final databaseRef = FirebaseDatabase.instance.reference();
     final uid = widget.user.uid;
+    String fullName = _nameController.text;
+    List<String> nameParts = fullName.split(' ');
+
+    String firstName = nameParts[0];
+    String lastName = nameParts.length > 1 ? nameParts[1] : '';
+
 
     // Check if editing mode is enabled
     if (_isEditing) {
+
       // Save changes when done editing
       final userData = {
         'name': _nameController.text,
+        'fname': firstName,
+        'lname': lastName,
         'email': _emailController.text,
-        'password': _passwordController.text,
+        'username2': _usernameController.text,
         'birthday': _birthdayController.text,
         'height': double.parse(_heightController.text),
         'weight': double.parse(_weightController.text),
-        'profile_picture': '', // Initialize to empty string
+
       };
 
       // Update the user's data in the Realtime Database
@@ -333,11 +398,45 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         databaseRef.child('users').child(uid).update(
             {'profile_picture': widget.user.photoURL!});
       }
+      databaseRef.child('users').child(uid).update(userData);
     }
+    // Change the user's email address !! DONT TOUCH !!
+    /*try {
+      await widget.user.updateEmail(_emailController.text);
+      print('Email address updated to ${_emailController.text}');
+    } catch (e) {
+      print('Error updating email: $e');
+    }*/
+
 
     // Toggle editing mode
     setState(() {
       _isEditing = !_isEditing;
     });
-  }}
+  }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime(1990, 1, 1), // Initial date
+      firstDate: DateTime(1900, 1, 1), // Earliest selectable date
+      lastDate: DateTime.now(), // Latest selectable date
+    );
+
+    if (selectedDate != null) {
+      setState(() {
+        _birthdayController.text = '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}';
+      });
+    }
+    if (_isEditing){GestureDetector(
+      onTap: _isEditing ? () => _selectDate(context) : null,
+      child: _buildTextFormField(
+        label: 'Birthday',
+        controller: _birthdayController,
+      ),
+    );
+
+    }
+
+
+}}

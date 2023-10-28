@@ -51,6 +51,9 @@ dependencies:
   youtube: ^1.0.1
   flutter_youtube_view: ^2.0.4
   percent_indicator: ^4.2.3
+  flutter_spinkit: ^5.2.0
+  autocomplete_textfield: ^2.0.1
+  csv: ^5.1.1
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +79,8 @@ flutter:
     - assets/ge.png
     - assets/food.png
     - assets/login.png
+    - assets/back.jpeg
+    - assets/dataset.csv
 
 
 

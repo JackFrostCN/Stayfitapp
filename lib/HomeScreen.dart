@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:stayfitdemo/login.dart';
 import 'package:stayfitdemo/home.dart';
 import 'MealsScreen.dart';
@@ -7,10 +9,14 @@ import 'account_settings_screen.dart'; // Import the AccountSettingsScreen class
 import 'BMIScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'datasafety.dart';
+
 class HomeScreen2 extends StatefulWidget {
   final User user;
 
+
   HomeScreen2({required this.user});
+
 
   @override
   _HomeScreen2State createState() => _HomeScreen2State();
@@ -22,6 +28,13 @@ class _HomeScreen2State extends State<HomeScreen2> {
 
   late List<Widget> _tabs;
 
+  String username = '';
+  String imgurl = '';
+
+
+
+
+
   @override
   void initState() {
     super.initState();
@@ -29,7 +42,31 @@ class _HomeScreen2State extends State<HomeScreen2> {
       NutritionApp(),
       MealsScreen(user: widget.user),
       BMIScreen(user: widget.user),
+
     ];
+    final databaseRef = FirebaseDatabase.instance.reference();
+    databaseRef.child('users').child(widget.user.uid).child('username2').onValue.listen((usernameEvent) {
+      if (usernameEvent.snapshot.value != null) {
+        setState(() {
+          username = usernameEvent.snapshot.value.toString();
+        });
+      }
+
+    });
+
+    databaseRef.child('users').child(widget.user.uid).child('profile_picture').onValue.listen((propicEvent) {
+      if (propicEvent.snapshot.value != null) {
+        setState(() {
+          imgurl = propicEvent.snapshot.value.toString();
+        });
+      }
+
+    });
+
+
+
+
+
   }
 
 
@@ -63,6 +100,7 @@ class _HomeScreen2State extends State<HomeScreen2> {
   void _logout(BuildContext context) {
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +138,7 @@ class _HomeScreen2State extends State<HomeScreen2> {
           elevation: 0.0, // Remove the divider
         ),
         drawer: Drawer(
+
           child: Container(
             color: Colors.white,
             child: ListView(
@@ -107,37 +146,84 @@ class _HomeScreen2State extends State<HomeScreen2> {
               children: <Widget>[
 
                 UserAccountsDrawerHeader(
-                  accountName: Text(widget.user.uid),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    image: DecorationImage(
+                      image: AssetImage('assets/back.jpeg'),
+                      opacity: .2,
+                      fit: BoxFit.cover,
+                    ),// Change this color to white
+                  ),
+
+                  accountName: Text('@$username'),
                   accountEmail: Text(widget.user.email!),
                   currentAccountPicture: CircleAvatar(
-                    backgroundImage: AssetImage('assets/profile_picture.png'),
-                  ),
+                    backgroundImage: NetworkImage(imgurl),
+                    child: imgurl == null || imgurl.isEmpty
+                        ? Image.asset('assets/profile_picture.png')
+                        : null,
+                  )
                 ),
                 ListTile(
                   leading: Icon(Icons.home),
                   title: Text('Home'),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen2(user: widget.user)));
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.food_bank),
-                  title: Text('Meals'),
+                  leading: Icon(Icons.calendar_today),
+                  title: Text('Plans'),
+
+                ),
+                ListTile(
+                  leading: Icon(Icons.account_circle),
+                  title: Text('Manage Your Account'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MealsScreen(user: widget.user)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => AccountSettingsScreen(user: widget.user)));
                   },
+                ),
+
+                ListTile(
+                  leading: Icon(Icons.check),
+                  title: Text('Progress'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => BMIScreen(user: widget.user)));
+                  },
+
+                ),
+                ListTile(
+                  leading: Icon(Icons.tips_and_updates),
+                  title: Text('Tips and Updates'),
+
+                ),
+                ListTile(
+                  leading: Icon(Icons.privacy_tip),
+                  title: Text('Data Safety'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => DataSafetyGuaranteeScreen(user: widget.user,)));
+                  },
+
                 ),
                 ListTile(
                   leading: Icon(Icons.settings),
                   title: Text('Settings'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
+
                 ),
                 Divider(),
                 ListTile(
                   leading: Icon(Icons.exit_to_app),
+                  title: Text('Exit'),
+                  onTap: () {
+                    exitApp();
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.logout),
                   title: Text('Logout'),
                   onTap: () {
                     _logout(context);
@@ -205,4 +291,7 @@ ButtonStyle customElevatedButtonStyle({
       BorderSide(color: textColor, width: 2.0), // Defines the stroke (border)
     ),
   );
+}
+void exitApp() {
+  SystemNavigator.pop(); // This exits the app
 }
