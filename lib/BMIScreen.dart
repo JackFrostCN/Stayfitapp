@@ -65,15 +65,7 @@ class _BMIScreenState extends State<BMIScreen> {
 
       appBar: AppBar(
         automaticallyImplyLeading: true, // back button
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back), // You can use any icon you want
-          color: Colors.blueAccent, // Change the color to your desired color
-          onPressed: () {
-            // Handle the back button press
-            Navigator.of(context).pop();
-          },
-        ),
-        // ...
+
         title: Text('Your BMI Details',
         style: TextStyle(
         fontSize: 25,

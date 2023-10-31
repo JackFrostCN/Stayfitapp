@@ -4,9 +4,9 @@ import 'HomeScreen.dart';
 
 
 
-class MyApp extends StatelessWidget {
+class DataSafetyGuarantee extends StatelessWidget {
   final User user;
-  MyApp({required this.user});
+  DataSafetyGuarantee({required this.user});
 
   @override
   Widget build(BuildContext context) {

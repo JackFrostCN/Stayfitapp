@@ -1,19 +1,38 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firebase Firestore
 
-void main() {
-  runApp(MyApp());
-}
+import 'HomeScreen.dart';
+import 'MealsScreen.dart';
 
-class MyApp extends StatefulWidget {
+class CountCal extends StatefulWidget {
+
+  final User user;
+  final MealsScreen mealsScreen;
+
+
+  CountCal({
+    Key? key,
+    required this.user,
+    required this.mealsScreen,
+  }) : super(key: key);
+
+  CountCal.withUser({
+    required this.user,
+  }) : mealsScreen = MealsScreen(user: user), super(key: null);
+
+
+
+
   @override
-  _MyAppState createState() => _MyAppState();
+  _CountCalState createState() => _CountCalState();
+
+
 }
 
-class _MyAppState extends State<MyApp> {
+class _CountCalState extends State<CountCal> {
   List<List<dynamic>> csvData = [];
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
   TextEditingController amountController = TextEditingController();
@@ -41,8 +60,10 @@ class _MyAppState extends State<MyApp> {
     }, orElse: () => []);
 
     if (foodRow.isNotEmpty && foodRow.length > 3) {
-      final double caloriesPer100g = double.tryParse(foodRow[3].toString()) ?? 0.0;
-      final double calculatedCalories = (caloriesPer100g * amountInGrams) / 100.0;
+      final double caloriesPer100g =
+          double.tryParse(foodRow[3].toString()) ?? 0.0;
+      final double calculatedCalories =
+          (caloriesPer100g * amountInGrams) / 100.0;
       setState(() {
         calories = calculatedCalories;
       });
@@ -53,21 +74,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  /*void submitToFirebase(String mealId, String foodItem, String amount) {
-    FirebaseFirestore.instance
-        .collection('meals')
-        .doc(widget.user.uid) // Assuming you have a user object
-        .collection('daily_meals')
-        .doc(mealId)
-        .collection('food_items')
-        .add({
-      'food_item': foodItem,
-      'amount': amount,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-  }*/
-
-  void _showAddFoodItemDialog(String mealId) {
+  void AddFoodItemDialog(String mealId) {
     String foodItem = "";
     String amount = "";
 
@@ -79,37 +86,63 @@ class _MyAppState extends State<MyApp> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                onChanged: (text) {
-                  foodItem = text;
+              AutoCompleteTextField(
+                key: key,
+                controller: TextEditingController(text: ''),
+                decoration: InputDecoration(
+                  labelText: 'Food Item',
+                  hintText: 'Enter Food Item',
+                ),
+                clearOnSubmit: false,
+                suggestions:
+                csvData.sublist(1).map((row) => row[1].toString()).toList(),
+                itemFilter: (item, query) {
+                  return item.toLowerCase().contains(query.toLowerCase());
                 },
-                decoration: InputDecoration(labelText: 'Food Item'),
+                itemSorter: (a, b) {
+                  return a.compareTo(b);
+                },
+                itemSubmitted: (item) {
+                  setState(() {
+                    selectedFoodItem = item;
+                  });
+                },
+                itemBuilder: (context, item) {
+                  return Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(item),
+                  );
+                },
               ),
               TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Amount',
+                  hintText: 'In grams (g)',
+                ),
                 onChanged: (text) {
-                  amount = text;
+                  final double amountInGrams = double.tryParse(text) ?? 0.0;
+                  calculateCalories(amountInGrams);
                 },
-                decoration: InputDecoration(labelText: 'Amount'),
+              ),
+              SizedBox(height: 20), // Add some spacing
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      // Handle adding to the database here
+                      // You can use the values of `selectedFoodItem` and `amountController.text`
+                      // to submit the data to the database.
+                      Navigator.pop(context);
+                    },
+                    child: Text('Add to list'),
+                  ),
+                ],
               ),
             ],
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                if (foodItem.isNotEmpty) {
-                  //submitToFirebase(mealId, foodItem, amount);
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Add'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-          ],
         );
       },
     );
@@ -120,60 +153,24 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back), // You can use any icon you want
+            color: Colors.blueAccent, // Change the color to your desired color
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen2(user: widget.user)),
+              );
+            },
+          ),
           title: Text('Calorie Calculator'),
         ),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('Select Food Item:'),
-              SimpleAutoCompleteTextField(
-                key: key,
-                controller: TextEditingController(text: selectedFoodItem),
-                suggestions: csvData
-                    .sublist(1)
-                    .map((row) => row[1].toString())
-                    .toList(),
-                decoration: InputDecoration(
-                  hintText: 'Type here',
-                ),
-                textChanged: (text) {
-                  setState(() {
-                    selectedFoodItem = text;
-                  });
-                },
-                textSubmitted: (item) {
-                  setState(() {
-                    selectedFoodItem = item;
-                  });
-                },
-              ),
-              SizedBox(height: 20),
-              Text('Selected Food Item: $selectedFoodItem'), // Display selected food item
-              SizedBox(height: 20),
-              Text('Enter Amount in Grams:'),
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: 'Enter amount',
-                ),
-                onChanged: (text) {
-                  final double amountInGrams = double.tryParse(text) ?? 0.0;
-                  calculateCalories(amountInGrams);
-                },
-              ),
-              SizedBox(height: 20),
-              Text('Calories: $calories'),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // Open the dialog to add the food item to Firebase
-                  _showAddFoodItemDialog("mealId"); // Pass your meal ID here
-                },
-                child: Text('Add Food Item to Firebase'),
-              ),
-            ],
+          child: ElevatedButton(
+            onPressed: () {
+              AddFoodItemDialog("mealId");
+            },
+            child: Text('Add Food Item'),
           ),
         ),
       ),

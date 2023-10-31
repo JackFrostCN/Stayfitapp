@@ -71,6 +71,12 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  fonts:
+    - family: ProductSans
+      fonts:
+        - asset: assets/fonts/ProductSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/ProductSans-Regular.ttf
   assets :
     - assets/profile_picture.png
     - assets/hh.png
@@ -81,6 +87,7 @@ flutter:
     - assets/login.png
     - assets/back.jpeg
     - assets/dataset.csv
+    - assets/fonts/
 
 
 

@@ -9,10 +9,12 @@ import 'account_settings_screen.dart'; // Import the AccountSettingsScreen class
 import 'BMIScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'caloriecounter.dart';
 import 'datasafety.dart';
 
 class HomeScreen2 extends StatefulWidget {
   final User user;
+
 
 
   HomeScreen2({required this.user});
@@ -23,6 +25,7 @@ class HomeScreen2 extends StatefulWidget {
 }
 
 class _HomeScreen2State extends State<HomeScreen2> {
+
   int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Define _scaffoldKey here
 
@@ -39,7 +42,7 @@ class _HomeScreen2State extends State<HomeScreen2> {
   void initState() {
     super.initState();
     _tabs = [
-      NutritionApp(),
+      NutritionApp(user: widget.user),
       MealsScreen(user: widget.user),
       BMIScreen(user: widget.user),
 
@@ -174,6 +177,11 @@ class _HomeScreen2State extends State<HomeScreen2> {
                 ),
                 ListTile(
                   leading: Icon(Icons.calendar_today),
+                  onTap: () {
+                    Navigator.pop(context);
+
+                    Navigator.push(context, MaterialPageRoute(builder: (context) =>CountCal(user: widget.user, mealsScreen:MealsScreen(user: widget.user),)));
+                  },
                   title: Text('Plans'),
 
                 ),

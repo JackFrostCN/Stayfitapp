@@ -17,6 +17,7 @@ class AccountSettingsScreen extends StatefulWidget {
   final User user;
 
 
+
   AccountSettingsScreen({required this.user});
   @override
   _AccountSettingsScreenState createState() => _AccountSettingsScreenState(user: user);
