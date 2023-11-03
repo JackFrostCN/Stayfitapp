@@ -176,7 +176,7 @@ class _BMIScreenState extends State<BMIScreen> {
                                   age: _age,
                                   height: _height,
                                   weight: _weight,
-                              selectedActivityLevel: _actlvl),
+                              selectedActivityLevel: _actlvl, user: widget.user,),
                             ),
                           );
                         },

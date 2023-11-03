@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:stayfitdemo/NewUser.dart';
 import 'package:stayfitdemo/login.dart';
 import 'package:stayfitdemo/home.dart';
 import 'MealsScreen.dart';
@@ -117,9 +118,11 @@ class _HomeScreen2State extends State<HomeScreen2> {
           title: Text(
             getGreeting(),
             style: TextStyle(
+                fontFamily: 'ProductSans',
               fontSize: 36,
               color: Colors.black, // Set the text color to black
-              fontWeight: FontWeight.bold, // Make the text bold
+              fontWeight: FontWeight.bold,
+              // Make the text bold
             ),
           ),
           leading: IconButton(
@@ -180,7 +183,7 @@ class _HomeScreen2State extends State<HomeScreen2> {
                   onTap: () {
                     Navigator.pop(context);
 
-                    Navigator.push(context, MaterialPageRoute(builder: (context) =>CountCal(user: widget.user, mealsScreen:MealsScreen(user: widget.user),)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => NewUser1(user: widget.user,)));
                   },
                   title: Text('Plans'),
 

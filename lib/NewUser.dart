@@ -2,18 +2,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:stayfitdemo/HomeScreen.dart';
-import 'login.dart';
 
-class NewUser extends StatefulWidget {
+import 'NewUser2.dart';
+
+
+class NewUser1 extends StatefulWidget {
   final User user;
 
-  NewUser({required this.user});
+  NewUser1({required this.user});
 
   @override
-  _NewUserState createState() => _NewUserState();
+  _NewUser1State createState() => _NewUser1State();
 }
 
-class _NewUserState extends State<NewUser> {
+class _NewUser1State extends State<NewUser1> {
   final TextEditingController fnameController = TextEditingController();
   final TextEditingController lnameController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
@@ -24,18 +26,30 @@ class _NewUserState extends State<NewUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('New User Registration'),
-      ),
+
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Welcome, new user!',
-                style: TextStyle(fontSize: 24),
+                'StayFit',
+                style: TextStyle(
+                    fontSize: 40,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'ProductSans'),
+              ),
+              SizedBox(height: 35),
+              Text(
+                'Create StayFit Account',
+                style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold,fontFamily: 'ProductSans'),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Enter your name',
+                style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,fontFamily: 'ProductSans',color: Colors.black54),
               ),
               SizedBox(height: 16),
               TextFormField(
@@ -62,7 +76,7 @@ class _NewUserState extends State<NewUser> {
                 ),
               ),
               SizedBox(height: 16),
-              TextFormField(
+              /*TextFormField(
                 controller: usernameController,
                 style: TextStyle(fontSize: 18),
                 decoration: InputDecoration(
@@ -112,33 +126,30 @@ class _NewUserState extends State<NewUser> {
                 ),
                 keyboardType: TextInputType.datetime,
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 16),*/
               ElevatedButton(
                 onPressed: () {
-                  // Save user data to Realtime Database
-                  _saveUserDataToDatabase();
-                  // Navigate to HomeScreen after registration
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => HomeScreen2(user: widget.user),
-                    ),
-                  );
+                  if (fnameController.text.isEmpty || lnameController.text.isEmpty) {
+                    // Show a snackbar error message
+                    final snackBar = SnackBar(
+                      content: Text('Please fill in all required fields.'),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  } else {
+                    // Save user data to Realtime Database
+                    _saveUserDataToDatabase();
+                    // Navigate to HomeScreen after successful registration
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => NewUser2(user: widget.user),
+                      ),
+                    );
+                  }
                 },
-                child: Text('Complete Registration'),
-              ),
+                child: Text('Next'),
+                style: customElevatedButtonStyle(),
+              )
 
-              // Add the "Skip for now" link here
-              TextButton(
-                onPressed: () {
-                  // Navigate to HomeScreen without completing registration
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => HomeScreen2(user: widget.user),
-                    ),
-                  );
-                },
-                child: Text('Skip for now'),
-              ),
             ],
           ),
         ),
@@ -154,13 +165,34 @@ class _NewUserState extends State<NewUser> {
     final userData = {
       'fname': fnameController.text,
       'lname': lnameController.text,
-      'username2': usernameController.text,
-      'height': heightController.text,
-      'weight': weightController.text,
-      'birthday': birthdayController.text,
+
     };
 
     // Save the user data to the Realtime Database
     databaseRef.child('users').child(uid).update(userData);
   }
+}
+ButtonStyle customElevatedButtonStyle({
+  Color primaryColor = Colors.white,
+  Color textColor = Colors.black87,
+
+  double paddingSize = 10.0,
+  double borderRadiusSize = 15.0,
+}) {
+  return ButtonStyle(
+    foregroundColor: MaterialStateProperty.all<Color>(textColor),
+    backgroundColor: MaterialStateProperty.all<Color>(primaryColor),
+    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+      EdgeInsets.all(paddingSize),
+    ),
+    shape: MaterialStateProperty.all<OutlinedBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadiusSize),
+      ),
+    ),
+    overlayColor: MaterialStateProperty.all<Color>(textColor),
+    side: MaterialStateProperty.all<BorderSide>(
+      BorderSide(color: textColor, width: 2.0),
+    ),
+  );
 }

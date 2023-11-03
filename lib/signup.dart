@@ -3,7 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'HomeScreen.dart';
+import 'NewUser.dart';
 import 'login.dart';
 
 void main() async {
@@ -32,7 +35,7 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final DatabaseReference _database =
-  FirebaseDatabase.instance.reference().child('users');
+      FirebaseDatabase.instance.reference().child('users');
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -47,9 +50,6 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Sign Up'),
-      ),
       body: Builder(
         builder: (BuildContext context) {
           return Container(
@@ -57,7 +57,33 @@ class _SignupPageState extends State<SignupPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildCurvedInputField(
+                Text(
+                  'StayFit',
+                  style: TextStyle(
+                      fontSize: 40,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'ProductSans'),
+                ),
+                SizedBox(height: 35),
+                Text(
+                  "Let's Get Started!",
+                  style: TextStyle(
+                      fontSize: 35,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'ProductSans'),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Create your Account',
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black54,
+                      fontFamily: 'ProductSans'),
+                ),
+                SizedBox(height: 35),
+                _buildCurvedInputField2(
                   hintText: 'Email',
                   prefixIcon: Icons.email,
                   controller: emailController,
@@ -70,51 +96,115 @@ class _SignupPageState extends State<SignupPage> {
                   controller: passwordController,
                 ),
                 SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    _signUpWithEmail(
-                      email: emailController.text,
-                      password: passwordController.text,
-                      scaffoldContext: context,
-                    );
-                  },
-                  child: Text('Sign Up'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => LoginPage(),
+                          ));
+                        },
+                        child: Text(
+                            'I already have an account' ,style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'ProductSans',
+                        )
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(width: 10.0),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _signUpWithEmail(
+                            email: emailController.text,
+                            password: passwordController.text,
+                            scaffoldContext: context,
+                          );
+                        },
+                        child: Text('Continue',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'ProductSans',
+                            )),
+                        style: customElevatedButtonStyle(),
+                      ),
+                    ),
+                    // Add some spacing between the buttons
+                  ],
                 ),
+
                 SizedBox(height: 16.0),
-                Text(
-                  'or',
-                  style: TextStyle(fontSize: 16.0),
-                ),
-                SizedBox(height: 16.0),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _signInWithGoogle(context);
-                  },
-                  icon: Icon(Icons.g_translate),
-                  label: Text('Sign Up with Google'),
-                ),
-                SizedBox(height: 16.0),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => LoginPage(),
-                    ));
-                  },
-                  child: Text(
-                    'Login Instead',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
+                Card(
+                  child: TextButton(
+                    onPressed: () async {
+                      User? user = await _signInWithGoogle();
+
+                      if (user != null) {
+                        // Check if it's the first-time login
+                        bool isFirstTime = await isFirstTimeLogin(user);
+
+                        if (isFirstTime) {
+                          // Navigate to the NewUser screen for first-time users
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => NewUser1(user: user),
+                            ),
+                          );
+                        } else {
+                          // Navigate to the HomeScreen for returning users
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  HomeScreen2(user: user), // Pass user to HomeScreen
+                            ),
+                          );
+                        }
+
+
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero, // Remove padding around the button
+                      minimumSize: Size(0, 0), // Set the minimum button size to zero
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Remove extra padding
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.blue, // Set the border color to blue
+                          width: 1.0, // Adjust the border width as needed
+                        ),
+                        borderRadius: BorderRadius.circular(4.0), // Adjust the border radius as needed
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0), // Add some padding around the content
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/google_logo.png', // Replace with the actual path to your custom Google logo image
+                              width: 24, // Adjust the width and height to match your image size
+                              height: 24,
+                            ),
+                            Padding(padding: const EdgeInsets.all(5.0),),
+                            Text(
+                              'Continue with Google',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontFamily: 'ProductSans',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                if (errorMessage != null)
-                  Text(
-                    errorMessage!,
-                    style: TextStyle(
-                      color: Colors.red,
-                    ),
-                  ),
+
               ],
             ),
           );
@@ -122,11 +212,50 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
+  Future<bool> isFirstTimeLogin(User user) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Check if the user's UID is already stored in SharedPreferences
+    if (prefs.containsKey(user.uid)) {
+      // The user has logged in before
+      return false;
+    } else {
+      // Store the user's UID in SharedPreferences to mark them as logged in
+      await prefs.setBool(user.uid, true);
+      return true;
+    }
+  }
+  Future<User?> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      if (googleUser == null) {
+        // User canceled the Google Sign-In process
+        return null;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      return user;
+    } catch (error) {
+      print('Google Sign-In Error: $error');
+      return null;
+    }
+  }
 
   Widget _buildCurvedInputField({
     required String hintText,
     required IconData prefixIcon,
-    bool isPassword = false,
+    required isPassword,
     required TextEditingController controller,
   }) {
     return Container(
@@ -135,8 +264,8 @@ class _SignupPageState extends State<SignupPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 1,
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 0,
             blurRadius: 3,
             offset: Offset(0, 2),
           ),
@@ -149,10 +278,11 @@ class _SignupPageState extends State<SignupPage> {
             controller: controller,
             obscureText: isPassword && !isPasswordVisible,
             decoration: InputDecoration(
-              hintText: hintText,
-              prefixIcon: Icon(prefixIcon),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(16.0),
+              labelText: hintText,
+              labelStyle: TextStyle(fontSize: 16), // Style for the label
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10), // Rounded border
+              ),
             ),
           ),
           IconButton(
@@ -170,6 +300,36 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
+  Widget _buildCurvedInputField2({
+    required String hintText,
+    required IconData prefixIcon,
+    required TextEditingController controller,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.0),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 0,
+            blurRadius: 3,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: hintText,
+          labelStyle: TextStyle(fontSize: 16), // Style for the label
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10), // Rounded border
+          ),
+        ),
+      ),
+    );
+  }
 
   Future<void> _signUpWithEmail({
     required String email,
@@ -181,7 +341,7 @@ class _SignupPageState extends State<SignupPage> {
         // Email is not in the correct format
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
-            content: Text('Invalid email address, Recheck the email.'),
+            content: Text('Invalid email address, Please re-check.'),
             duration: Duration(seconds: 5),
           ),
         );
@@ -192,7 +352,8 @@ class _SignupPageState extends State<SignupPage> {
         // Password does not meet the criteria
         ScaffoldMessenger.of(scaffoldContext).showSnackBar(
           SnackBar(
-            content: Text('Password must contain at least 8 characters, including a number, uppercase letter, and a special symbol.'),
+            content: Text(
+                'Password must contain at least 8 characters, including a number, uppercase letter, and a special symbol.'),
             duration: Duration(seconds: 5),
           ),
         );
@@ -200,20 +361,20 @@ class _SignupPageState extends State<SignupPage> {
         return;
       }
 
-
-
-      final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      final UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       final User? user = userCredential.user;
       if (user != null) {
+        int atIndex = email.indexOf('@');
+        String username = atIndex != -1 ? email.substring(0, atIndex) : email;
         // Create a user profile in the database with the email as the username
         await _database.child(user.uid).set({
           'email': email,
-          'username': email,
-          'firstTimeUser' : 1,
+          'username': username,
           // Set the username to the email
         });
 
@@ -241,60 +402,9 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-  void _signInWithGoogle(BuildContext context) async {
-    try {
-      final GoogleSignInAccount? googleSignInAccount =
-      await googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount!.authentication;
 
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken,
-      );
-
-      final UserCredential userCredential =
-      await _auth.signInWithCredential(credential);
-
-      final User? user = userCredential.user;
-      if (user != null) {
-        // Check if the user is already registered in your Firebase Realtime Database
-        // You can use the user.uid to query your database
-        // If not registered, you can add the user to the database here
-
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Registration Successful!'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-
-        // Navigate to another page (e.g., login page) after a delay
-        await Future.delayed(Duration(seconds: 2));
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => LoginPage(),
-        ));
-      }
-    } catch (error) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Sign up Failed'),
-          content: Text('$errorMessage'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
 }
+
 bool _isPasswordValid(String password) {
   // Add your password validation logic here
   final RegExp passwordPattern = RegExp(
@@ -302,6 +412,7 @@ bool _isPasswordValid(String password) {
   );
   return passwordPattern.hasMatch(password);
 }
+
 bool _isEmailValid(String email) {
   // Use a regular expression to validate the email format
   final emailPattern = RegExp(
@@ -310,4 +421,28 @@ bool _isEmailValid(String email) {
 
   // Test the email against the pattern
   return emailPattern.hasMatch(email);
+}
+
+ButtonStyle customElevatedButtonStyle({
+  Color primaryColor = Colors.blue,
+  Color textColor = Colors.white,
+  double paddingSize = 15.0,
+  double borderRadiusSize = 5.0,
+}) {
+  return ButtonStyle(
+    foregroundColor: MaterialStateProperty.all<Color>(textColor),
+    backgroundColor: MaterialStateProperty.all<Color>(primaryColor),
+    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+      EdgeInsets.all(paddingSize),
+    ),
+    shape: MaterialStateProperty.all<OutlinedBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadiusSize),
+      ),
+    ),
+    overlayColor: MaterialStateProperty.all<Color>(textColor),
+    side: MaterialStateProperty.all<BorderSide>(
+      BorderSide(color: textColor, width: 0.0),
+    ),
+  );
 }

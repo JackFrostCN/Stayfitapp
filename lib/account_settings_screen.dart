@@ -509,6 +509,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   Future<void> _onSave() async {
     final databaseRef = FirebaseDatabase.instance.reference();
     final uid = widget.user.uid;
+
     String fullName = _nameController.text;
     List<String> nameParts = fullName.split(' ');
 
