@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import 'CustomizedProgramScreen.dart';
+import 'NewUser3.dart';
 import 'RecommendedProgramScreen.dart';
 import 'd.dart';
 
@@ -113,58 +114,66 @@ class _BMIScreenState extends State<BMIScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true, // back button
-
-        title: Text(
-          'Your BMI Details',
-          style: TextStyle(
-            fontSize: 25,
-            color: Colors.black, // Set the text color to black
-            fontWeight: FontWeight.bold, // Make the text bold
-          ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          color: Colors.blueAccent,
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => NewUser3(user: widget.user), // Pass the user object
+              ),
+            );
+          },
         ),
         backgroundColor: Colors.white,
         elevation: 0.0,
+
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Height: $_height cm | Weight: $_weight kg',
+              'StayFit',
               style: TextStyle(
+                  fontSize: 40,
+                  color: Colors.blue,
                   fontWeight: FontWeight.bold,
-                  fontSize: 20), // Increase font size
+                  fontFamily: 'ProductSans'),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 35),
             Text(
-              'Gender: $_gender | Age : $_age | Activity Level : $_actlvl',
+              'Crafting Your Health and Diet Strategy',
               style: TextStyle(
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  fontSize: 20), // Increase font size
+                  fontFamily: 'ProductSans'),
             ),
-            SizedBox(height: 50),
+            SizedBox(height: 35),
+            Text(
+              "Considering your height of ${_height/100}m, weight of ${_weight}kg, age of ${_age}, your gender as ${_gender}, and your activity level as ${_actlvl}, we have a personalized plan that we believe will work best for you. We're here to support your well-being!",
+              style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.black54,
+                  //fontFamily: 'ProductSans'
+                ), // Increase font size
+            ),
+            SizedBox(height: 60),
+
+
             AnimatedCircularProgressBar(
-                targetProgress: F, currentValue: _bmiResult),
+                targetProgress: F, currentValue: _bmiResult,bmivalue: _bmiResult),
             SizedBox(height: 50),
             _bmiResult != null
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        '$_bmiResult',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 80), // Increase BMI font size
-                      ),
-                      Text(
-                        'BMI',
-                        style: TextStyle(fontSize: 20), // Increase font size
-                      ),
-                      SizedBox(height: 100),
+
+
                       // Inside the build method of BMIScreen
                       SizedBox(height: 20),
+
                       ElevatedButton(
                         onPressed: () {
                           Navigator.of(context).push(
@@ -182,30 +191,29 @@ class _BMIScreenState extends State<BMIScreen> {
                         },
                         style: customElevatedButtonStyle(),
                         child: Text(
-                          'Recommended Program',
+                          'Select a Plan',
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
+
                       SizedBox(height: 20),
-                      Text(
-                        'OR',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => CustomPlanScreen(),
-                            ),
-                          );
-                        },
-                        style: customElevatedButtonStyle(),
-                        child: Text(
-                          'Start user customized program',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
+
+                        /*TextButton(
+                          onPressed: () {
+                            // Navigate to the Sign-Up page
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => CustomizedPlanScreen (weight: _weight,height: _height,user: user,bmrWact: ),
+                            ));
+                          },
+                          child: Text(
+                              'Start Customized Plan' ,style: TextStyle(
+                            //fontWeight: FontWeight.bold,
+                            //fontFamily: 'ProductSans',
+                            fontSize: 20,
+                          )
+                          ),
+                        ),*/
+
                     ],
                   )
                 : Container(),
@@ -248,11 +256,12 @@ class _BMIScreenState extends State<BMIScreen> {
   }
 }
 
+
 ButtonStyle customElevatedButtonStyle({
   Color primaryColor = Colors.white,
-  Color textColor = Colors.black,
+  Color textColor = Colors.black87,
   double paddingSize = 15.0,
-  double borderRadiusSize = 10.0,
+  double borderRadiusSize = 15.0,
 }) {
   return ButtonStyle(
     foregroundColor: MaterialStateProperty.all<Color>(textColor),
@@ -265,10 +274,9 @@ ButtonStyle customElevatedButtonStyle({
         borderRadius: BorderRadius.circular(borderRadiusSize),
       ),
     ),
-    overlayColor: MaterialStateProperty.all<Color>(
-        textColor), // Changes the color of the button when pressed
+    overlayColor: MaterialStateProperty.all<Color>(textColor),
     side: MaterialStateProperty.all<BorderSide>(
-      BorderSide(color: textColor, width: 2.0), // Defines the stroke (border)
+      BorderSide(color: textColor, width: 2.0),
     ),
   );
 }

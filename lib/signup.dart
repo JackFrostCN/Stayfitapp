@@ -374,7 +374,7 @@ class _SignupPageState extends State<SignupPage> {
         // Create a user profile in the database with the email as the username
         await _database.child(user.uid).set({
           'email': email,
-          'username': username,
+          'username2': username,
           // Set the username to the email
         });
 

@@ -109,7 +109,9 @@ class _HomeScreen2State extends State<HomeScreen2> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // Remove the debug banner
+      debugShowCheckedModeBanner: false,
+
+      // Remove the debug banner
       home: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -248,6 +250,7 @@ class _HomeScreen2State extends State<HomeScreen2> {
           currentIndex: _currentIndex,
           iconSize: 30,
           selectedFontSize: 10,
+
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
