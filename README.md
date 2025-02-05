@@ -1,16 +1,1 @@
-# stayfitdemo
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+**StayFit** is a fitness app designed to help users track their health and achieve their fitness goals. It includes a BMI calculator, personalized diet suggestions for weight management, and progress tracking features. StayFit provides tailored advice on controlling diet, losing or gaining weight, and staying active, offering a comprehensive approach to maintaining a healthy lifestyle.
